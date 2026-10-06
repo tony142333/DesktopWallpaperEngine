@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>WallpaperEngine.Hotkeys</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WallpaperEngine.Core\WallpaperEngine.Core.csproj" />
+    <ProjectReference Include="..\WallpaperEngine.Wallpaper\WallpaperEngine.Wallpaper.csproj" />
+  </ItemGroup>
+
+</Project>

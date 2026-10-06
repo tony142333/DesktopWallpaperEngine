@@ -156,8 +156,56 @@ public sealed class WallpaperService : IWallpaperService
             Log.Error(ex, "Restore failed");
             return false;
         }
+        
     }
+        public WallpaperSnapshot CaptureSnapshot() => Get(dw =>
+    {
+        var fit = (WallpaperFit)dw.GetPosition();
+        var list = new List<MonitorWallpaper>();
+        foreach (var m in ReadMonitors(dw))
+        {
+            string path = "";
+            try { path = dw.GetWallpaper(m.DevicePath) ?? ""; } catch (COMException) { }
+            list.Add(new MonitorWallpaper(m.DevicePath, path));
+        }
+        return new WallpaperSnapshot(fit, list);
+    });
 
+    public void RestoreSnapshot(WallpaperSnapshot snapshot) => Run(dw =>
+    {
+        try { dw.SetPosition((int)snapshot.Fit); }
+        catch (COMException ex) { Log.Warning(ex, "Snapshot fit restore failed"); }
+
+        foreach (var m in snapshot.Monitors)
+        {
+            if (!IsUsable(m.WallpaperPath)) continue; // slideshow/solid color: nothing to restore
+            try { dw.SetWallpaper(m.DevicePath, m.WallpaperPath); }
+            catch (COMException ex) { Log.Warning(ex, "Snapshot restore failed for a monitor"); }
+        }
+        Log.Information("Wallpaper snapshot restored");
+    });
+
+    public bool ApplySafeWallpaper(string? safeImagePath)
+    {
+        if (IsUsable(safeImagePath) && Supported.Contains(Path.GetExtension(safeImagePath!)))
+        {
+            try
+            {
+                Run(dw =>
+                {
+                    dw.SetPosition((int)WallpaperFit.Fill);
+                    dw.SetWallpaper(null, Path.GetFullPath(safeImagePath!));
+                });
+                Log.Information("Safe wallpaper applied");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Safe wallpaper failed, falling back to original");
+            }
+        }
+        return RestoreOriginal();
+    }
     private static bool IsUsable(string? path) => !string.IsNullOrWhiteSpace(path) && File.Exists(path);
 
     private static string? DefaultWindowsWallpaper()

@@ -1,12 +1,13 @@
-﻿using WallpaperEngine.Wallpaper;
-using System.Windows;
+﻿using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using WallpaperEngine.Core.Logging;
 using WallpaperEngine.Core.Paths;
 using WallpaperEngine.Core.Settings;
+using WallpaperEngine.Hotkeys;
 using WallpaperEngine.UI.Services;
 using WallpaperEngine.UI.ViewModels;
+using WallpaperEngine.Wallpaper;
 
 namespace WallpaperEngine.UI;
 
@@ -33,7 +34,7 @@ public partial class App : Application
         _showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
         if (!_ownsMutex)
         {
-            _showEvent.Set(); // tell the running instance to show itself
+            _showEvent.Set();
             Shutdown();
             return;
         }
@@ -62,6 +63,8 @@ public partial class App : Application
         sc.AddSingleton<StartupService>();
         sc.AddSingleton<ThemeService>();
         sc.AddSingleton<IWallpaperService, WallpaperService>();
+        sc.AddSingleton<PanicService>();
+        sc.AddSingleton<PanicViewModel>();
         sc.AddSingleton<MainViewModel>();
         sc.AddSingleton<MainWindow>();
         _services = sc.BuildServiceProvider();
@@ -69,11 +72,21 @@ public partial class App : Application
         var settings = _services.GetRequiredService<ISettingsService>();
         settings.Load();
         _services.GetRequiredService<ThemeService>().Apply(settings.Current.Theme);
+
+        // Backup must exist before panic can use it
         _services.GetRequiredService<IWallpaperService>().EnsureOriginalBackup();
 
+        // --- Panic ---
+        var panic = _services.GetRequiredService<PanicService>();
+        panic.Apply(out _);
+        panic.StateChanged += (_, active) =>
+        {
+            if (active && settings.Current.PanicHideWindow && !panic.KeepWindowVisible)
+                Dispatcher.BeginInvoke(new Action(() => _mainWindow?.Hide()));
+        };
 
         // --- Tray ---
-        _tray = new TrayService(ShowMainWindow, RestoreOriginalWallpaper, ExitApplication);
+        _tray = new TrayService(ShowMainWindow, () => panic.Trigger(), RestoreOriginalWallpaper, ExitApplication);
 
         // --- Listen for "show" requests from a second launch ---
         var listener = new Thread(() =>
@@ -99,9 +112,9 @@ public partial class App : Application
             _mainWindow.WindowState = WindowState.Normal;
         _mainWindow.Activate();
     }
+
     private void RestoreOriginalWallpaper() =>
-    _services!.GetRequiredService<IWallpaperService>().RestoreOriginal();
-    
+        _services!.GetRequiredService<IWallpaperService>().RestoreOriginal();
 
     public void ExitApplication()
     {
@@ -109,12 +122,13 @@ public partial class App : Application
         IsExiting = true;
         Log.Information("=== App exiting ===");
         _tray?.Dispose();
-        _showEvent?.Set(); // unblock listener thread
+        _showEvent?.Set();
         Shutdown();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _services?.GetService<PanicService>()?.Dispose();
         LoggingSetup.Shutdown();
         _services?.Dispose();
         if (_ownsMutex) _mutex?.ReleaseMutex();

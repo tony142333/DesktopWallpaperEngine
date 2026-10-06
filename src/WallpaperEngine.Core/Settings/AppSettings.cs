@@ -18,5 +18,11 @@ public sealed class AppSettings
 
     // Wallpaper
     public WallpaperFit Fit { get; set; } = WallpaperFit.Fill;
-}
 
+    // Panic
+    public bool PanicEnabled { get; set; } = true;
+    public HotkeyGesture PanicHotkey { get; set; } =
+        new(HotkeyModifiers.Control | HotkeyModifiers.Alt, 0x24); // Ctrl+Alt+Home
+    public string? SafeWallpaperPath { get; set; }
+    public bool PanicHideWindow { get; set; } = true;
+}

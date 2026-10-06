@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WallpaperEngine.Core\WallpaperEngine.Core.csproj" />
     <ProjectReference Include="..\WallpaperEngine.Wallpaper\WallpaperEngine.Wallpaper.csproj" />
+    <ProjectReference Include="..\WallpaperEngine.Hotkeys\WallpaperEngine.Hotkeys.csproj" />
   </ItemGroup>
 
 </Project>

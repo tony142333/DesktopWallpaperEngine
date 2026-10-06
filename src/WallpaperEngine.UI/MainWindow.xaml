@@ -1,5 +1,6 @@
-﻿<Window x:Class="WallpaperEngine.UI.MainWindow"
+﻿<Window x:Class="WallpaperEngine.UI.MainWindow" 
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:local="clr-namespace:WallpaperEngine.UI"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Desktop Wallpaper Engine"
         Width="900" Height="700" MinWidth="700" MinHeight="450"
@@ -12,6 +13,9 @@
             <TextBlock Text="Desktop Wallpaper Engine" FontSize="28" FontWeight="SemiBold"/>
             <TextBlock Text="Phase 2 - Static wallpapers" Foreground="{DynamicResource AccentBrush}" Margin="0,4,0,0"/>
             <TextBlock Text="{Binding VersionText}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,2,0,24"/>
+            <TextBlock Text="Phase 3 - Panic hotkey" Foreground="{DynamicResource AccentBrush}" Margin="0,4,0,0"/>
+            <TextBlock Text="{Binding VersionText}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,2,0,24"/>
+            <local:PanicPanel x:Name="PanicPanelControl" Margin="0,0,0,16"/>
 
             <!-- Wallpaper -->
             <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="20">

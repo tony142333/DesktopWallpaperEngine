@@ -9,10 +9,11 @@ public partial class MainWindow : Window
 {
     private readonly ISettingsService _settings;
 
-    public MainWindow(MainViewModel viewModel, ISettingsService settings)
+    public MainWindow(MainViewModel viewModel, PanicViewModel panicViewModel, ISettingsService settings)
     {
         InitializeComponent();
         DataContext = viewModel;
+        PanicPanelControl.DataContext = panicViewModel;
         _settings = settings;
         Closing += OnClosing;
     }
