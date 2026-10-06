@@ -7,24 +7,28 @@ public sealed class TrayService : IDisposable
 {
     private readonly TaskbarIcon _icon;
 
-    public TrayService(Action open, Action exit)
+    public TrayService(Action open, Action restoreOriginal, Action exit)
     {
         var menu = new ContextMenu();
 
         var openItem = new MenuItem { Header = "Open" };
         openItem.Click += (_, _) => open();
 
+        var restoreItem = new MenuItem { Header = "Restore original wallpaper" };
+        restoreItem.Click += (_, _) => restoreOriginal();
+
         var exitItem = new MenuItem { Header = "Exit" };
         exitItem.Click += (_, _) => exit();
 
         menu.Items.Add(openItem);
+        menu.Items.Add(restoreItem);
         menu.Items.Add(new Separator());
         menu.Items.Add(exitItem);
 
         _icon = new TaskbarIcon
         {
             ToolTipText = "Desktop Wallpaper Engine",
-            Icon = System.Drawing.SystemIcons.Application, // custom icon comes in the installer phase
+            Icon = System.Drawing.SystemIcons.Application,
             ContextMenu = menu
         };
         _icon.TrayMouseDoubleClick += (_, _) => open();

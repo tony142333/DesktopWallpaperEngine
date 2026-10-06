@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using WallpaperEngine.Wallpaper;
+using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using WallpaperEngine.Core.Logging;
@@ -60,6 +61,7 @@ public partial class App : Application
         sc.AddSingleton<ISettingsService, JsonSettingsService>();
         sc.AddSingleton<StartupService>();
         sc.AddSingleton<ThemeService>();
+        sc.AddSingleton<IWallpaperService, WallpaperService>();
         sc.AddSingleton<MainViewModel>();
         sc.AddSingleton<MainWindow>();
         _services = sc.BuildServiceProvider();
@@ -67,9 +69,11 @@ public partial class App : Application
         var settings = _services.GetRequiredService<ISettingsService>();
         settings.Load();
         _services.GetRequiredService<ThemeService>().Apply(settings.Current.Theme);
+        _services.GetRequiredService<IWallpaperService>().EnsureOriginalBackup();
+
 
         // --- Tray ---
-        _tray = new TrayService(ShowMainWindow, ExitApplication);
+        _tray = new TrayService(ShowMainWindow, RestoreOriginalWallpaper, ExitApplication);
 
         // --- Listen for "show" requests from a second launch ---
         var listener = new Thread(() =>
@@ -95,6 +99,9 @@ public partial class App : Application
             _mainWindow.WindowState = WindowState.Normal;
         _mainWindow.Activate();
     }
+    private void RestoreOriginalWallpaper() =>
+    _services!.GetRequiredService<IWallpaperService>().RestoreOriginal();
+    
 
     public void ExitApplication()
     {

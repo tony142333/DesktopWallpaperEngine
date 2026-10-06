@@ -2,18 +2,51 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Desktop Wallpaper Engine"
-        Width="900" Height="600" MinWidth="700" MinHeight="450"
+        Width="900" Height="700" MinWidth="700" MinHeight="450"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource TextBrush}">
 
-    <Grid Margin="28">
-        <StackPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="28">
             <TextBlock Text="Desktop Wallpaper Engine" FontSize="28" FontWeight="SemiBold"/>
-            <TextBlock Text="Phase 1 - Foundation" Foreground="{DynamicResource AccentBrush}" Margin="0,4,0,0"/>
+            <TextBlock Text="Phase 2 - Static wallpapers" Foreground="{DynamicResource AccentBrush}" Margin="0,4,0,0"/>
             <TextBlock Text="{Binding VersionText}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,2,0,24"/>
 
+            <!-- Wallpaper -->
             <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="Wallpaper" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <StackPanel Margin="0,0,16,0">
+                            <TextBlock Text="Apply to" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding Targets}" SelectedItem="{Binding SelectedTarget}"
+                                      DisplayMemberPath="Label" Width="220"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="Fit mode" Margin="0,0,0,4"/>
+                            <ComboBox ItemsSource="{Binding Fits}" SelectedItem="{Binding SelectedFit}" Width="160"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Button Content="Choose image..." Command="{Binding ChooseWallpaperCommand}" Padding="12,6" Margin="0,0,8,0"/>
+                        <Button Content="Restore original" Command="{Binding RestoreOriginalCommand}" Padding="12,6" Margin="0,0,8,0"/>
+                        <Button Content="Refresh monitors" Command="{Binding RefreshMonitorsCommand}" Padding="12,6"/>
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource MutedTextBrush}" Margin="0,0,0,12"/>
+
+                    <Border Background="{DynamicResource WindowBackgroundBrush}" CornerRadius="6" Height="170"
+                            HorizontalAlignment="Left" MinWidth="300">
+                        <Image Source="{Binding PreviewImage}" Stretch="Uniform" Margin="4"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- General -->
+            <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="20" Margin="0,16,0,0">
                 <StackPanel>
                     <TextBlock Text="General" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     <CheckBox Content="Start with Windows" IsChecked="{Binding StartWithWindows}" Margin="0,0,0,8"/>
@@ -26,6 +59,7 @@
                 </StackPanel>
             </Border>
 
+            <!-- Data -->
             <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="20" Margin="0,16,0,0">
                 <StackPanel>
                     <TextBlock Text="Data" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8"/>
@@ -38,5 +72,5 @@
                 </StackPanel>
             </Border>
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Window>
